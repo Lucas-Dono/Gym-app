@@ -13,14 +13,9 @@ import {
 } from "./types";
 
 // Todas las llamadas pasan por OpenRouter (https://openrouter.ai), que da acceso a muchos modelos con una sola clave.
-// Se prueban los modelos en orden: primero los gratuitos y, si fallan (límite diario, caídos o respuesta inválida),
-// uno de pago muy barato. Se puede cambiar la lista con OPENROUTER_MODELS (separados por coma).
-const MODELOS_POR_DEFECTO = [
-  "google/gemma-4-31b-it:free",
-  "nvidia/nemotron-3-super-120b-a12b:free",
-  "openrouter/free",
-  "anthropic/claude-haiku-5.5",
-];
+// Se prueban los modelos en orden; si uno falla (caído, sin cupo o respuesta inválida) se pasa al siguiente.
+// DeepSeek V4 Flash cuesta ~US$0,001 por rutina. Se puede cambiar la lista con OPENROUTER_MODELS (separados por coma).
+const MODELOS_POR_DEFECTO = ["deepseek/deepseek-v4-flash", "qwen/qwen3.8-flash", "deepseek/deepseek-v4.1-flash"];
 
 function modelos(): string[] {
   const env = process.env.OPENROUTER_MODELS?.split(",").map((m) => m.trim()).filter(Boolean);
@@ -120,8 +115,8 @@ async function pedirJson<S extends z.ZodType>(
 
 function mensajeDeFallo(errores: string[]): string {
   const todo = errores.join(" | ");
-  if (/402|credit/i.test(todo)) return "No hay créditos suficientes en OpenRouter y los modelos gratuitos no respondieron. Probá de nuevo en un rato.";
-  if (/429|rate/i.test(todo)) return "Los modelos gratuitos llegaron a su límite. Esperá un minuto y probá de nuevo.";
+  if (/402|credit/i.test(todo)) return "No hay créditos suficientes en OpenRouter. Cargá saldo en openrouter.ai/credits.";
+  if (/429|rate/i.test(todo)) return "Demasiadas consultas seguidas. Esperá un minuto y probá de nuevo.";
   return "Ningún modelo pudo responder ahora. Probá de nuevo en un momento.";
 }
 

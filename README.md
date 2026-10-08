@@ -34,11 +34,11 @@ Si `APP_PASSWORD` está vacía, la app no pide contraseña (cómodo para usarla 
 
 ## Modelos y costo
 
-La IA se usa a través de OpenRouter. Por defecto prueba, en orden, modelos **gratuitos** (`google/gemma-4-31b-it:free`, `nvidia/nemotron-3-super-120b-a12b:free`, `openrouter/free`) y, solo si fallan o llegan a su límite diario, `anthropic/claude-haiku-5.5`, que cuesta menos de medio centavo de dólar por rutina. Puedes cambiar la lista con `OPENROUTER_MODELS`.
+La IA se usa a través de OpenRouter. Por defecto usa **DeepSeek V4 Flash** (`deepseek/deepseek-v4-flash`, unos US$0,001 por rutina) y, si falla, prueba **Qwen 3.8 Flash** (`qwen/qwen3.8-flash`) y **DeepSeek V4.1 Flash** (`deepseek/deepseek-v4.1-flash`). Puedes cambiar la lista con `OPENROUTER_MODELS`.
 
 La búsqueda del video usa el buscador web de OpenRouter (unos US$0,02 la primera vez que abres cada ejercicio; después queda guardado). Si prefieres no gastar en eso, pon `VIDEO_SEARCH=off` y la ficha mostrará un enlace a la búsqueda de YouTube.
 
-Los modelos gratuitos de OpenRouter cambian con el tiempo; si uno deja de existir, la app pasa al siguiente de la lista.
+Si un modelo deja de existir en OpenRouter, la app pasa al siguiente de la lista.
 
 ## Estructura
 
