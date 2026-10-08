@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { SesionEnCurso } from "../lib/storage";
-import type { EjercicioRutina, Perfil, RegistroEjercicio, SesionGuardada } from "../lib/types";
-import { pedirRutina } from "./api";
+import type { EjercicioRutina, RegistroEjercicio, SesionGuardada } from "../lib/types";
 import ExerciseModal from "./ExerciseModal";
 import ExerciseImages from "./ExerciseImages";
 
@@ -18,60 +17,47 @@ const MOTIVOS_CAMBIO = ["La máquina está ocupada", "Me molesta al hacerlo", "N
 
 export default function RoutineView({
   sesion,
-  perfil,
-  historial,
+  ajustando,
+  error,
+  onAjustar,
   onChange,
   onGuardar,
   onDescartar,
 }: {
   sesion: SesionEnCurso;
-  perfil: Perfil;
-  historial: SesionGuardada[];
-  onChange: (s: SesionEnCurso) => void;
+  /** Texto del ajuste que la IA está procesando ("" si ninguno). */
+  ajustando: string;
+  error: string;
+  onAjustar: (texto: string) => void;
+  /** Recibe una función sobre el estado más reciente, para no pisar cambios concurrentes. */
+  onChange: (cambio: (s: SesionEnCurso) => SesionEnCurso) => void;
   onGuardar: (s: SesionGuardada) => void;
   onDescartar: () => void;
 }) {
-  const { rutina, registro } = sesion;
+  const { rutina, registro, timer } = sesion;
+  const cierre = sesion.cierre ?? { abierto: false, sensacion: "" as SesionGuardada["sensacion"], comentario: "" };
   const [ficha, setFicha] = useState<EjercicioRutina | null>(null);
-  const [ajustando, setAjustando] = useState("");
   const [ajusteLibre, setAjusteLibre] = useState("");
   const [cambiando, setCambiando] = useState<string | null>(null);
-  const [error, setError] = useState("");
-  const [cerrando, setCerrando] = useState(false);
-  const [sensacion, setSensacion] = useState<SesionGuardada["sensacion"]>("");
-  const [comentario, setComentario] = useState("");
-  const [timer, setTimer] = useState<{ fin: number; total: number } | null>(null);
 
-  const reg = (e: EjercicioRutina): RegistroEjercicio =>
-    registro[e.id] ?? { id: e.id, nombre: e.nombre, completado: false, peso: "", reps: "" };
+  const regDe = (r: SesionEnCurso["registro"], e: EjercicioRutina): RegistroEjercicio =>
+    r[e.id] ?? { id: e.id, nombre: e.nombre, completado: false, peso: "", reps: "" };
+  const reg = (e: EjercicioRutina) => regDe(registro, e);
 
   function setReg(e: EjercicioRutina, cambios: Partial<RegistroEjercicio>) {
-    onChange({ ...sesion, registro: { ...registro, [e.id]: { ...reg(e), ...cambios } } });
+    onChange((s) => ({ ...s, registro: { ...s.registro, [e.id]: { ...regDe(s.registro, e), ...cambios } } }));
   }
+
+  const setTimer = (t: SesionEnCurso["timer"]) => onChange((s) => ({ ...s, timer: t }));
+  const setCierre = (c: Partial<typeof cierre>) => onChange((s) => ({ ...s, cierre: { ...cierre, ...s.cierre, ...c } }));
 
   const hechos = rutina.ejercicios.filter((e) => reg(e).completado);
 
-  async function ajustar(texto: string) {
+  function ajustar(texto: string) {
     if (!texto.trim()) return;
-    setAjustando(texto);
-    setError("");
-    try {
-      const nueva = await pedirRutina({
-        perfil,
-        sesion: sesion.input,
-        historial,
-        rutinaActual: rutina,
-        hechos: hechos.map((e) => e.nombre),
-        ajuste: texto,
-      });
-      onChange({ ...sesion, rutina: nueva });
-      setAjusteLibre("");
-      setCambiando(null);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setAjustando("");
-    }
+    onAjustar(texto);
+    setAjusteLibre("");
+    setCambiando(null);
   }
 
   function guardar() {
@@ -82,8 +68,8 @@ export default function RoutineView({
       minutos: Math.max(1, Math.round((Date.now() - new Date(sesion.inicio).getTime()) / 60000)),
       energia: sesion.input.energia,
       ejercicios: rutina.ejercicios.map(reg),
-      sensacion,
-      comentario,
+      sensacion: cierre.sensacion,
+      comentario: cierre.comentario,
     });
   }
 
@@ -204,9 +190,9 @@ export default function RoutineView({
       </section>
 
       <section className="card">
-        {!cerrando ? (
+        {!cierre.abierto ? (
           <div className="row">
-            <button className="primary big" onClick={() => setCerrando(true)}>
+            <button className="primary big" onClick={() => setCierre({ abierto: true })}>
               Terminar sesión
             </button>
             <button className="ghost" onClick={() => confirm("¿Descartar esta rutina?") && onDescartar()}>
@@ -224,15 +210,20 @@ export default function RoutineView({
                   ["dura", "Muy dura"],
                 ] as const
               ).map(([v, l]) => (
-                <button key={v} className={sensacion === v ? "chip on" : "chip"} onClick={() => setSensacion(v)}>
+                <button key={v} className={cierre.sensacion === v ? "chip on" : "chip"} onClick={() => setCierre({ sensacion: v })}>
                   {l}
                 </button>
               ))}
             </div>
-            <input placeholder="Comentario (opcional): dormí poco, subí peso en press…" value={comentario} onChange={(e) => setComentario(e.target.value)} />
-            <button className="primary big" onClick={guardar}>
-              Guardar en el historial
-            </button>
+            <input placeholder="Comentario (opcional): dormí poco, subí peso en press…" value={cierre.comentario} onChange={(e) => setCierre({ comentario: e.target.value })} />
+            <div className="row">
+              <button className="primary big" onClick={guardar}>
+                Guardar en el historial
+              </button>
+              <button className="ghost" onClick={() => setCierre({ abierto: false })}>
+                Seguir entrenando
+              </button>
+            </div>
           </>
         )}
       </section>

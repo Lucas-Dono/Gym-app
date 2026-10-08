@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import type { Energia, Lugar, Perfil, Rutina, SesionGuardada, SesionInput } from "../lib/types";
-import { pedirRutina } from "./api";
+import type { Energia, Lugar, SesionGuardada, SesionInput } from "../lib/types";
 
 const ENFOQUES = [
   ["auto", "Que decida la IA"],
@@ -15,39 +13,22 @@ const ENFOQUES = [
 ] as const;
 
 export default function SessionForm({
-  perfil,
+  input,
+  onInput,
   historial,
-  onRutina,
+  generando,
+  error,
+  onGenerar,
 }: {
-  perfil: Perfil;
+  input: SesionInput;
+  onInput: (i: SesionInput) => void;
   historial: SesionGuardada[];
-  onRutina: (input: SesionInput, rutina: Rutina) => void;
+  generando: boolean;
+  error: string;
+  onGenerar: (i: SesionInput) => void;
 }) {
-  const [input, setInput] = useState<SesionInput>({
-    minutos: 60,
-    energia: "normal",
-    lugar: "gimnasio",
-    enfoque: "auto",
-    molestias: "",
-    notas: "",
-  });
-  const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState("");
-
-  const set = <K extends keyof SesionInput>(k: K, v: SesionInput[K]) => setInput((s) => ({ ...s, [k]: v }));
+  const set = <K extends keyof SesionInput>(k: K, v: SesionInput[K]) => onInput({ ...input, [k]: v });
   const ultima = historial[0];
-
-  async function generar() {
-    setCargando(true);
-    setError("");
-    try {
-      onRutina(input, await pedirRutina({ perfil, sesion: input, historial }));
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setCargando(false);
-    }
-  }
 
   return (
     <section className="card form">
@@ -128,9 +109,10 @@ export default function SessionForm({
       </label>
 
       {error && <p className="error">{error}</p>}
-      <button className="primary big" onClick={generar} disabled={cargando}>
-        {cargando ? "La IA está armando tu rutina…" : "Generar rutina"}
+      <button className="primary big" onClick={() => onGenerar(input)} disabled={generando}>
+        {generando ? "La IA está armando tu rutina…" : "Generar rutina"}
       </button>
+      {generando && <p className="muted small loading">Puedes cambiar de pestaña o cerrar la app: la rutina aparecerá aquí cuando esté lista.</p>}
     </section>
   );
 }
