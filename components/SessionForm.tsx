@@ -5,7 +5,7 @@ import type { Energia, Lugar, Perfil, Rutina, SesionGuardada, SesionInput } from
 import { pedirRutina } from "./api";
 
 const ENFOQUES = [
-  ["auto", "Que decida Claude"],
+  ["auto", "Que decida la IA"],
   ["pecho y tríceps", "Pecho y tríceps"],
   ["espalda y bíceps", "Espalda y bíceps"],
   ["piernas y glúteos", "Piernas"],
@@ -54,7 +54,7 @@ export default function SessionForm({
       <h2>¿Cómo viene el día?</h2>
       {ultima && (
         <p className="muted small">
-          Última sesión: {ultima.enfoque} ({new Date(ultima.fecha).toLocaleDateString("es")}). Claude la tiene en cuenta para no repetir músculos.
+          Última sesión: {ultima.enfoque} ({new Date(ultima.fecha).toLocaleDateString("es")}). La IA la tiene en cuenta para no repetir músculos.
         </p>
       )}
 
@@ -129,7 +129,7 @@ export default function SessionForm({
 
       {error && <p className="error">{error}</p>}
       <button className="primary big" onClick={generar} disabled={cargando}>
-        {cargando ? "Claude está armando tu rutina…" : "Generar rutina"}
+        {cargando ? "La IA está armando tu rutina…" : "Generar rutina"}
       </button>
     </section>
   );

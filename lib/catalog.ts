@@ -56,7 +56,7 @@ export function trainingCatalog(lugar: Lugar): RawExercise[] {
   );
 }
 
-/** Una línea compacta por ejercicio para que Claude elija por id. */
+/** Una línea compacta por ejercicio para que la IA elija por id. */
 export function catalogText(lugar: Lugar): string {
   return trainingCatalog(lugar)
     .map((e) => {

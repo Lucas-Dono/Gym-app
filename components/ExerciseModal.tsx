@@ -46,7 +46,7 @@ export default function ExerciseModal({ ejercicio, onClose }: { ejercicio: Ejerc
         )}
 
         {error && <p className="error">{error}</p>}
-        {!ficha && !error && <p className="muted loading">Claude está buscando la técnica y un buen video…</p>}
+        {!ficha && !error && <p className="muted loading">La IA está buscando la técnica y un buen video…</p>}
 
         {ficha && (
           <>

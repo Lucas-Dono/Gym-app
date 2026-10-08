@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { leerFicha, guardarFicha } from "../../../lib/cache";
-import { ClaudeError, fichaEjercicio } from "../../../lib/claude";
+import { IAError, fichaEjercicio } from "../../../lib/ia";
 
 export const maxDuration = 300;
 
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ficha });
   } catch (err) {
     console.error(err);
-    const msg = err instanceof ClaudeError ? err.message : "No se pudo cargar la ficha.";
+    const msg = err instanceof IAError ? err.message : "No se pudo cargar la ficha.";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

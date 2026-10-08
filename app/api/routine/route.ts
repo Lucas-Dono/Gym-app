@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ClaudeError, generarRutina, type PedidoRutina } from "../../../lib/claude";
+import { IAError, generarRutina, type PedidoRutina } from "../../../lib/ia";
 
 export const maxDuration = 300;
 
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ rutina });
   } catch (err) {
     console.error(err);
-    const msg = err instanceof ClaudeError ? err.message : "No se pudo generar la rutina.";
+    const msg = err instanceof IAError ? err.message : "No se pudo generar la rutina.";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

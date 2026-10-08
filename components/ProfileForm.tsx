@@ -11,7 +11,7 @@ export default function ProfileForm({ perfil, onChange }: { perfil: Perfil; onCh
     <>
       <section className="card form">
         <h2>Tu perfil</h2>
-        <p className="muted small">Se guarda solo en este navegador. Claude lo usa para ajustar volumen e intensidad.</p>
+        <p className="muted small">Se guarda solo en este navegador. La IA lo usa para ajustar volumen e intensidad.</p>
         <div className="grid2">
           <label className="field">
             <span>Altura (cm)</span>

@@ -41,7 +41,7 @@ export interface SesionGuardada {
   comentario: string;
 }
 
-// --- Esquemas de salida estructurada de Claude ---
+// --- Esquemas de salida estructurada de la IA ---
 
 export const EjercicioSchema = z.object({
   id: z.string().describe("id exacto del catálogo"),
@@ -83,11 +83,9 @@ export const FichaSchema = z.object({
   erroresComunes: z.array(z.string()),
   consejos: z.array(z.string()),
   respiracion: z.string(),
-  videoUrl: z.string().describe("URL de YouTube encontrada en la búsqueda, o cadena vacía"),
-  videoTitulo: z.string(),
 });
 
-export interface FichaEjercicio extends Omit<z.infer<typeof FichaSchema>, "videoUrl" | "videoTitulo"> {
+export interface FichaEjercicio extends z.infer<typeof FichaSchema> {
   id: string;
   imagenes: string[];
   video: { id: string; titulo: string } | null;

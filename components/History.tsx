@@ -9,7 +9,7 @@ export default function History({ historial, onBorrar }: { historial: SesionGuar
     return (
       <section className="card">
         <h2>Historial</h2>
-        <p className="muted">Todavía no guardaste sesiones. Al terminar una rutina, guárdala y Claude la usará para planificar la siguiente.</p>
+        <p className="muted">Todavía no guardaste sesiones. Al terminar una rutina, guárdala y la IA la usará para planificar la siguiente.</p>
       </section>
     );
   }

@@ -180,7 +180,7 @@ export default function RoutineView({
 
       <section className="card">
         <h3>¿Cambió algo sobre la marcha?</h3>
-        <p className="muted small">Claude reajusta lo que falta y mantiene lo que ya hiciste.</p>
+        <p className="muted small">La IA reajusta lo que falta y mantiene lo que ya hiciste.</p>
         <div className="chips">
           {AJUSTES_RAPIDOS.map((a) => (
             <button key={a} className="chip" disabled={!!ajustando} onClick={() => ajustar(a)}>
